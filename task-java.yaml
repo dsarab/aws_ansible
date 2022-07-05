@@ -1,0 +1,22 @@
+---
+- hosts: java
+  become: yes
+  tasks:
+    - name: Install java runtime
+      command: amazon-linux-extras install java-openjdk11 -y
+
+    - name: Copy the application
+      copy:
+        src: /home/sinensia/springtesting/build/libs/springtesting-0.0.1-SNAPSHOT.jar
+        dest: /opt/springtesting/
+        mode: '0755'
+
+    - name: Symlink the app
+      command: sudo ln -s /opt/springtesting/springtesting-0.0.1-SNAPSHOT.jar /etc/init.d/springtesting
+
+    - name: changing permissions
+      command: sudo chmod +x /etc/init.d/springtesting
+
+    - name: starting the service
+      command: sudo service springtesting start
+

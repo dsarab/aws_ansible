@@ -56,10 +56,13 @@
         dest: /opt/springtesting/
         mode: '0755'
 
-    - name: Symlink the app
-      command: ln -s /opt/springtesting/springtesting-0.0.1-SNAPSHOT.jar /etc/init.d/springtesting
+    - name: Symbolic link
+      file:
+        src: /opt/springtesting/springtesting-0.0.1-SNAPSHOT.jar
+        dest: /etc/init.d/springtesting
+        state: link
 
-    - name: Start service springtesting
+    - name: Starting service springtesting
       service:
         name: springtesting
         enabled: true
