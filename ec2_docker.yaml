@@ -79,7 +79,7 @@
         src: /home/sinensia/vue-2048/docker-compose.yaml
         dest: /opt/docker/
 
-    - name: docker-compose up
+    - name: docker-compose pull
       shell: docker-compose -f /opt/docker/docker-compose.yaml pull
 
     - name: docker-compose up
