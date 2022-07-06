@@ -20,7 +20,7 @@
         vpc_subnet_id: "{{ subnet_id }}"
         assign_public_ip: yes
         instance_tags:
-          Name: javaistance
+          Name: docker-instance
       register: ec2
 
     - name: Add new instance to host group
@@ -47,23 +47,40 @@
     ansible_user: ec2-user
 
   tasks:
-    - name: Install java runtime
-      command: amazon-linux-extras install java-openjdk11 -y
+    - name: Install docker
+      yum:
+        name: docker
+
+    - name: Install docker-compose
+      get_url:
+        url: https://github.com/docker/compose/releases/download/v2.6.1/docker-compose-linux-x86_64
+        dest: /usr/local/bin/docker-compose
+
+    - name: Add the user
+      user:
+        name: ec2-user
+        group: docker
+
+    - name: symbolic link
+      file:
+        src: /usr/local/bin/docker-compose
+        dest: /usr/bin/docker-compose
+        state: link
+        mode: '0755'
+
+    - name: Starting service docker
+      service:
+        name: docker
+        enabled: true
+        state: started
 
     - name: Copy the application
       copy:
-        src: /home/sinensia/springtesting/build/libs/springtesting-0.0.1-SNAPSHOT.jar
-        dest: /opt/springtesting/
-        mode: '0755'
+        src: /home/sinensia/vue-2048/docker-compose.yaml
+        dest: /opt/docker/
 
-    - name: Symlink
-      file:
-        src: /opt/springtesting/springtesting-0.0.1-SNAPSHOT.jar
-        dest: /etc/init.d/springtesting
-        state: link
+    - name: docker-compose up
+      shell: docker-compose -f /opt/docker/docker-compose.yaml pull
 
-    - name: Starting service springtesting
-      service:
-        name: springtesting
-        enabled: true
-        state: started
+    - name: docker-compose up
+      shell: docker-compose -f /opt/docker/docker-compose.yaml up -d --no-build

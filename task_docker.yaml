@@ -10,9 +10,20 @@
       get_url:
         url: https://github.com/docker/compose/releases/download/v2.6.1/docker-compose-linux-x86_64
         dest: /usr/local/bin/docker-compose
+
+    - name: Add the user to the group of docker
+      user:
+        name: ec2-user
+        group: docker
+
+    - name: symbolic link
+      file:
+        src: /usr/local/bin/docker-compose
+        dest: /usr/bin/docker-compose
+        state: link
         mode: '0755'
 
-    - name: Starting service springtesting
+    - name: Starting service docker
       service:
         name: docker
         enabled: true
@@ -22,17 +33,9 @@
       copy:
         src: /home/sinensia/vue-2048/docker-compose.yaml
         dest: /opt/docker/
-        mode: '0755'
 
-    - name:
-      file:
-        path: /var/run/docker.sock
-        mode: '0777'
-
-    - name:
-      file:
-        path: /var/lib/docker/
-        mode: '0777'
+    - name: docker-compose up
+      shell: docker-compose -f /opt/docker/docker-compose.yaml up -d --no-build
 
 
 
